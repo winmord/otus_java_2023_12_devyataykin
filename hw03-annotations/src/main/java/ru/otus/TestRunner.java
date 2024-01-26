@@ -14,8 +14,6 @@ import ru.otus.annotations.Test;
 
 public class TestRunner {
     private static final Logger logger = LoggerFactory.getLogger(TestRunner.class);
-    private static Integer passedTests = 0;
-    private static Integer failedTests = 0;
 
     private TestRunner() {
         // empty constructor
@@ -25,18 +23,20 @@ public class TestRunner {
         try {
             Class<?> clazz = Class.forName(className);
             Constructor<?> constructor = clazz.getConstructor();
+            TestResults testResults = new TestResults();
 
             List<Method> beforeAnnotatedMethods = getMethodsAnnotatedWith(Before.class, clazz);
             List<Method> testAnnotatedMethods = getMethodsAnnotatedWith(Test.class, clazz);
             List<Method> afterAnnotatedMethods = getMethodsAnnotatedWith(After.class, clazz);
 
             for (Method testAnnotatedMethod : testAnnotatedMethods) {
-                runAllTests(constructor, beforeAnnotatedMethods, testAnnotatedMethod, afterAnnotatedMethods);
+                runAllTests(
+                        constructor, beforeAnnotatedMethods, testAnnotatedMethod, afterAnnotatedMethods, testResults);
             }
 
             logger.info("Total tests count: {}", testAnnotatedMethods.size());
-            logger.info("Passed: {}", passedTests);
-            logger.info("Failed: {}", failedTests);
+            logger.info("Passed: {}", testResults.getPassedTests());
+            logger.info("Failed: {}", testResults.getFailedTests());
         } catch (ClassNotFoundException | NoSuchMethodException exc) {
             logger.error("Failed to start tests. Cause: {}", exc.getCause().toString());
         }
@@ -46,16 +46,17 @@ public class TestRunner {
             Constructor<?> constructor,
             List<Method> beforeAnnotatedMethods,
             Method testAnnotatedMethod,
-            List<Method> afterAnnotatedMethods) {
+            List<Method> afterAnnotatedMethods,
+            TestResults testResults) {
         try {
             runTest(constructor, beforeAnnotatedMethods, testAnnotatedMethod, afterAnnotatedMethods);
-            ++passedTests;
+            testResults.countPassed();
         } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
             logger.error(
                     "Test {} failed. Cause: {}",
                     testAnnotatedMethod.getName(),
                     e.getCause().toString());
-            ++failedTests;
+            testResults.countFailed();
         }
     }
 
