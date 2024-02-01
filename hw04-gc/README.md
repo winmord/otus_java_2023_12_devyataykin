@@ -21,8 +21,8 @@
 <h3>2 этап</h3>
 &emsp;Вторым этапом была модификация кода, чтобы приложение работало быстро с минимальным хипом.
 Были сделаны следующие изменения:
-* <code>private final List<Data> listValues</code> в <code>Summator</code> был заменён на простой счётчик <code>dataCounter</code>, поскольку он использовался для подсчёта объектов типа <code>Data</code>. Вследствие этого, объекты не хранятся в памяти и не заполняют хип.
-* В классе <code>Summator</code> тип переменных <code>sum</code>, <code>prevValue</code>, <code>prevPrevValue</code>, <code>sumLastThreeValues</code>, <code>someValue</code> был изменён на примитивный, чтобы снизить затраты на Boxing и Unboxing.
+1. <code>private final List<Data> listValues</code> в <code>Summator</code> был заменён на простой счётчик <code>dataCounter</code>, поскольку он использовался для подсчёта объектов типа <code>Data</code>. Вследствие этого, объекты не хранятся в памяти и не заполняют хип.
+2. В классе <code>Summator</code> тип переменных <code>sum</code>, <code>prevValue</code>, <code>prevPrevValue</code>, <code>sumLastThreeValues</code>, <code>someValue</code> был изменён на примитивный, чтобы снизить затраты на Boxing и Unboxing.
 
 Была произведена попытка убрать модификатор <code>final</code> поля <code>value</code> в классе <code>Data</code>, добавить setter и конструктор без параметров. В классе <code>CalcDemo</code> создание объекта типа <code>Data</code> было вынесено за пределы цикла, а внутри цикла остался только вызов setter-a. Но это не привело к приросту производительности, поэтому было принято решение отказаться от этих изменений.
 
