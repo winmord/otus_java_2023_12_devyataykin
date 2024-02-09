@@ -4,6 +4,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.otus.annotations.Log;
@@ -23,23 +25,29 @@ public class Ioc {
 
     static class DemoInvocationHandler implements InvocationHandler {
         private final Object obj;
+        private final Set<Method> cachedMethods = new HashSet<>();
 
         public DemoInvocationHandler(Object obj) {
             this.obj = obj;
+            cacheMethods();
         }
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            Method[] methods = obj.getClass().getDeclaredMethods();
-            for (Method m : methods) {
-                if (m.isAnnotationPresent(Log.class)
-                        && m.getName().equals(method.getName())
-                        && Arrays.equals(m.getParameterTypes(), method.getParameterTypes())) {
-                    logger.info("executed method: {}, param: {}", method.getName(), args);
-                }
-            }
+            cachedMethods.stream()
+                    .filter(m -> method.getName().equals(m.getName())
+                            && Arrays.equals(method.getParameterTypes(), m.getParameterTypes()))
+                    .forEach(m -> logger.info("executed method: {}, param: {}", method.getName(), args));
 
             return method.invoke(obj, args);
+        }
+
+        private void cacheMethods() {
+            for (Method m : obj.getClass().getDeclaredMethods()) {
+                if (m.isAnnotationPresent(Log.class)) {
+                    cachedMethods.add(m);
+                }
+            }
         }
     }
 }
