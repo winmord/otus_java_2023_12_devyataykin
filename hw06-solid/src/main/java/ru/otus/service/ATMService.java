@@ -7,4 +7,6 @@ public interface ATMService {
     void addCash(List<Banknote> banknotes);
 
     List<Banknote> getCash(int sum);
+
+    int getRemainingAmountOfCash();
 }

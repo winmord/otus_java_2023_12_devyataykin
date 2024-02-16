@@ -10,4 +10,9 @@ public class Banknote {
     public int getDenomination() {
         return denomination;
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(denomination);
+    }
 }
