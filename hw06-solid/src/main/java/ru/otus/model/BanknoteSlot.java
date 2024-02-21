@@ -4,11 +4,11 @@ import ru.otus.exception.BanknoteSlotDoesNotContainEnough;
 import ru.otus.exception.BanknoteSlotUpperLimitExceeded;
 
 public class BanknoteSlot {
-    private final int denomination;
+    private final Denomination denomination;
     private final int upperLimit;
     private int count;
 
-    public BanknoteSlot(int denomination, int upperLimit) {
+    public BanknoteSlot(Denomination denomination, int upperLimit) {
         this.denomination = denomination;
         this.upperLimit = upperLimit;
     }
@@ -17,7 +17,7 @@ public class BanknoteSlot {
         return count;
     }
 
-    public int getDenomination() {
+    public Denomination getDenomination() {
         return denomination;
     }
 
