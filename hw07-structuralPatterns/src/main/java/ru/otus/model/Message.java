@@ -146,11 +146,11 @@ public class Message {
                 + field13 + '\'' + '}';
     }
 
-    public Message getSavedState() {
+    public Message copy() {
         Message savedState = this.toBuilder().build();
 
         if (field13 != null) {
-            ObjectForMessage savedField13 = field13.getSavedState();
+            ObjectForMessage savedField13 = field13.copy();
             savedState = this.toBuilder().field13(savedField13).build();
         }
 

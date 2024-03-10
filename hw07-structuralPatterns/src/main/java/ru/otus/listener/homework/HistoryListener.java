@@ -12,12 +12,12 @@ public class HistoryListener implements Listener, HistoryReader {
     @Override
     public void onUpdated(Message msg) {
         long id = msg.getId();
-        Message updatedMsg = msg.getSavedState();
+        Message updatedMsg = msg.copy();
         storage.put(id, updatedMsg);
     }
 
     @Override
     public Optional<Message> findMessageById(long id) {
-        return Optional.of(storage.get(id));
+        return Optional.ofNullable(storage.get(id));
     }
 }

@@ -15,13 +15,8 @@ class ProcessorThrowOnEvenSecondTest {
 
     @Test
     void processEvenSecond() {
-        var processorThrowOnEvenSecond = new ProcessorThrowOnEvenSecond(() -> {
-            LocalDateTime now = LocalDateTime.now();
-            if (now.getSecond() % 2 != 0) {
-                now = now.plusSeconds(1);
-            }
-            return now;
-        });
+        var processorThrowOnEvenSecond =
+                new ProcessorThrowOnEvenSecond(() -> LocalDateTime.parse("2024-03-10T12:20:36.0"));
 
         Consumer<Exception> errorHandler = e -> {
             throw new EvenSecondException(e);

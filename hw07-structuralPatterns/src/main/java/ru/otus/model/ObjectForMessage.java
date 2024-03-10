@@ -14,7 +14,7 @@ public class ObjectForMessage {
         this.data = data;
     }
 
-    public ObjectForMessage getSavedState() {
+    public ObjectForMessage copy() {
         ObjectForMessage savedObjectForMessage = new ObjectForMessage();
         List<String> savedData = new ArrayList<>(this.getData());
         savedObjectForMessage.setData(savedData);
