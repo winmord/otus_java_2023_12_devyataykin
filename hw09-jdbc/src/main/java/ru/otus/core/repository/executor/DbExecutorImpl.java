@@ -1,7 +1,5 @@
 package ru.otus.core.repository.executor;
 
-import ru.otus.core.sessionmanager.DataBaseOperationException;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,6 +7,7 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import ru.otus.core.sessionmanager.DataBaseOperationException;
 
 public class DbExecutorImpl implements DbExecutor {
 

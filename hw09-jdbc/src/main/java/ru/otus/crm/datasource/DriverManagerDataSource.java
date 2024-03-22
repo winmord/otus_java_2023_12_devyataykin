@@ -2,12 +2,11 @@ package ru.otus.crm.datasource;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
-import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Logger;
+import javax.sql.DataSource;
 
 public class DriverManagerDataSource implements DataSource {
     private DataSource dataSourcePool;

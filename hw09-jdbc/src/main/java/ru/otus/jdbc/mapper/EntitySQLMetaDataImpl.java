@@ -17,7 +17,9 @@ public class EntitySQLMetaDataImpl implements EntitySQLMetaData {
 
     @Override
     public String getSelectByIdSql() {
-        return String.format("SELECT * FROM %s WHERE %s = ?", entityClassMetaData.getName(), entityClassMetaData.getIdField().getName());
+        return String.format(
+                "SELECT * FROM %s WHERE %s = ?",
+                entityClassMetaData.getName(), entityClassMetaData.getIdField().getName());
     }
 
     @Override

@@ -5,6 +5,7 @@ import ru.otus.crm.annotation.Id;
 public class Manager {
     @Id
     private Long no;
+
     private String label;
     private String param1;
 

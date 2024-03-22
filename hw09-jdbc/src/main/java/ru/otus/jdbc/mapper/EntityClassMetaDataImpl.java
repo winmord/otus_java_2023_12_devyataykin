@@ -1,10 +1,9 @@
 package ru.otus.jdbc.mapper;
 
-import ru.otus.crm.annotation.Id;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.List;
+import ru.otus.crm.annotation.Id;
 
 public class EntityClassMetaDataImpl<T> implements EntityClassMetaData<T> {
     private final Class<T> clazz;
