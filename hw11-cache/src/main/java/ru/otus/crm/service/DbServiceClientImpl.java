@@ -2,6 +2,7 @@ package ru.otus.crm.service;
 
 import java.util.List;
 import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.otus.cachehw.HwCache;
@@ -52,6 +53,7 @@ public class DbServiceClientImpl implements DBServiceClient {
 
         return transactionManager.doInReadOnlyTransaction(session -> {
             var clientOptional = clientDataTemplate.findById(session, id);
+            clientOptional.ifPresent(client -> cache.put(client.getId(), client));
             log.info("client: {}", clientOptional);
             return clientOptional;
         });
@@ -61,6 +63,7 @@ public class DbServiceClientImpl implements DBServiceClient {
     public List<Client> findAll() {
         return transactionManager.doInReadOnlyTransaction(session -> {
             var clientList = clientDataTemplate.findAll(session);
+            clientList.forEach(client -> cache.put(client.getId(), client));
             log.info("clientList:{}", clientList);
             return clientList;
         });
