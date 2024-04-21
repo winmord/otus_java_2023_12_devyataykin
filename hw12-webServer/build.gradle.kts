@@ -1,4 +1,11 @@
 dependencies {
+    implementation ("org.projectlombok:lombok")
+    annotationProcessor ("org.projectlombok:lombok")
+
+    implementation("ch.qos.logback:logback-classic")
+    implementation("org.hibernate.orm:hibernate-core")
+    implementation("org.flywaydb:flyway-core")
+
     implementation("ch.qos.logback:logback-classic")
     implementation("com.google.code.gson:gson")
 

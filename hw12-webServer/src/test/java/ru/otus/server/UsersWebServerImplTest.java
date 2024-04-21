@@ -18,7 +18,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.otus.dao.UserDao;
-import ru.otus.model.User;
+import ru.otus.crm.model.User;
 import ru.otus.services.TemplateProcessor;
 
 @DisplayName("Тест сервера должен ")

@@ -7,7 +7,7 @@ import org.eclipse.jetty.security.RolePrincipal;
 import org.eclipse.jetty.security.UserPrincipal;
 import org.eclipse.jetty.util.security.Password;
 import ru.otus.dao.UserDao;
-import ru.otus.model.User;
+import ru.otus.crm.model.User;
 
 public class InMemoryLoginServiceImpl extends AbstractLoginService {
 

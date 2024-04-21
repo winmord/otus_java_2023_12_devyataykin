@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import ru.otus.dao.UserDao;
-import ru.otus.model.User;
+import ru.otus.crm.model.User;
 
 @SuppressWarnings({"squid:S1948"})
 public class UsersApiServlet extends HttpServlet {
