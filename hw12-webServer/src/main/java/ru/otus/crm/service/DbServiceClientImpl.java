@@ -1,13 +1,13 @@
 package ru.otus.crm.service;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.otus.core.repository.DataTemplate;
 import ru.otus.core.sessionmanager.TransactionManager;
 import ru.otus.crm.model.Client;
-
-import java.util.List;
-import java.util.Optional;
 
 public class DbServiceClientImpl implements DBServiceClient {
     private static final Logger log = LoggerFactory.getLogger(DbServiceClientImpl.class);
@@ -50,6 +50,16 @@ public class DbServiceClientImpl implements DBServiceClient {
             var clientList = clientDataTemplate.findAll(session);
             log.info("clientList:{}", clientList);
             return clientList;
+        });
+    }
+
+    @Override
+    public Optional<Client> findByName(String name) {
+        return transactionManager.doInReadOnlyTransaction(session -> {
+            var clientOptional = Optional.of(
+                    new LinkedList<>(clientDataTemplate.findByEntityField(session, "name", name)).getFirst());
+            log.info("client: {}", clientOptional);
+            return clientOptional;
         });
     }
 }

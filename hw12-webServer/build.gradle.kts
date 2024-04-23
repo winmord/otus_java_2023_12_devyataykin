@@ -6,6 +6,8 @@ dependencies {
     implementation("org.hibernate.orm:hibernate-core")
     implementation("org.flywaydb:flyway-core")
 
+    implementation("org.postgresql:postgresql")
+
     implementation("ch.qos.logback:logback-classic")
     implementation("com.google.code.gson:gson")
 

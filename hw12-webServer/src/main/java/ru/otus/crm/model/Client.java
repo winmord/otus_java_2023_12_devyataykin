@@ -1,11 +1,11 @@
 package ru.otus.crm.model;
 
+import com.google.gson.annotations.Expose;
 import jakarta.persistence.*;
+import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter
@@ -18,9 +18,11 @@ public final class Client implements Cloneable {
     @SequenceGenerator(name = "client_gen", sequenceName = "client_seq", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "client_gen")
     @Column(name = "id")
+    @Expose
     private Long id;
 
     @Column(name = "name")
+    @Expose
     private String name;
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "client")

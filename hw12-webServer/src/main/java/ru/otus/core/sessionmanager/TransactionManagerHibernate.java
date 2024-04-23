@@ -1,8 +1,7 @@
 package ru.otus.core.sessionmanager;
 
-import org.hibernate.SessionFactory;
-
 import java.util.concurrent.Callable;
+import org.hibernate.SessionFactory;
 
 public class TransactionManagerHibernate implements TransactionManager {
     private final SessionFactory sessionFactory;
