@@ -3,12 +3,15 @@ package ru.otus.mapper;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
 import ru.otus.dto.ClientDto;
 import ru.otus.exceptions.UtilityClassException;
 import ru.otus.model.Address;
 import ru.otus.model.Client;
 import ru.otus.model.Phone;
 
+@Component
 public class ClientMapper {
     private ClientMapper() {
         throw new UtilityClassException("Utility class");
