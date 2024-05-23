@@ -42,7 +42,7 @@ allprojects {
     val cassandra: String by project
     val neo4j: String by project
     val jedis: String by project
-
+	
     val jetty: String by project
     val jettyServlet: String by project
     val freemarker: String by project
@@ -54,6 +54,8 @@ allprojects {
     val bootstrap: String by project
     val springDocOpenapiUi: String by project
     val jsr305: String by project
+    
+    val grpc: String by project
 
     apply(plugin = "io.spring.dependency-management")
     dependencyManagement {
@@ -76,7 +78,7 @@ allprojects {
             dependency("org.mongodb:mongodb-driver-reactivestreams:${mongodbReactive}")
             dependency("org.neo4j.driver:neo4j-java-driver:$neo4j")
             dependency("redis.clients:jedis:$jedis")
-
+			
             dependency("org.eclipse.jetty.ee10:jetty-ee10-servlet:$jetty")
             dependency("org.eclipse.jetty:jetty-server:$jetty")
             dependency("org.eclipse.jetty.ee10:jetty-ee10-webapp:$jetty")
@@ -93,6 +95,10 @@ allprojects {
             dependency("org.webjars:bootstrap:$bootstrap")
             dependency("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocOpenapiUi")
             dependency("com.google.code.findbugs:jsr305:$jsr305")
+
+            dependency("io.grpc:grpc-netty:$grpc")
+            dependency("io.grpc:grpc-protobuf:$grpc")
+            dependency("io.grpc:grpc-stub:$grpc")
         }
     }
 
@@ -162,10 +168,10 @@ tasks {
     val managedVersions by registering {
         doLast {
             project.extensions.getByType<DependencyManagementExtension>()
-                    .managedVersions
-                    .toSortedMap()
-                    .map { "${it.key}:${it.value}" }
-                    .forEach(::println)
+                .managedVersions
+                .toSortedMap()
+                .map { "${it.key}:${it.value}" }
+                .forEach(::println)
         }
     }
 }

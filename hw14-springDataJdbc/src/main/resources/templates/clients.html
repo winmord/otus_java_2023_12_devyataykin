@@ -1,0 +1,46 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Клиенты</title>
+</head>
+
+<body>
+<h2>Создать клиента:</h2>
+<form th:action="@{/client}" th:object="${client}" method="post">
+    <label>
+        Имя: <br/>
+        <input style="width: 250px" type="text" name="name" th:value="*{name}"><br/>
+    </label>
+    <label>
+        Улица: <br/>
+        <input style="width: 250px" type="text" name="street" th:value="*{street}"><br/>
+    </label>
+    <label>
+        Номера телефонов через запятую: <br/>
+        <input style="width: 250px" type="text" name="phones" th:value="*{phones}"><br/>
+    </label>
+    <br/>
+    <input type="submit" value="Создать">
+</form>
+
+<h2>Клиенты:</h2>
+<table style="width: 400px" border="1" cellspacing="0" cellpadding="0" width="200">
+    <thead>
+    <tr>
+        <td style="width: 150px">Id</td>
+        <td style="width: 150px">Имя</td>
+        <td style="width: 150px">Адрес</td>
+        <td style="width: 150px">Телефоны</td>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="client : ${clients}">
+        <td th:text="${client.id}"></td>
+        <td th:text="${client.name}"></td>
+        <td th:text="${client.address.street}"></td>
+        <td th:text="${client.phones}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
