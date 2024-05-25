@@ -39,7 +39,7 @@ public class SensorDataProcessorBuffered implements SensorDataProcessor {
         }
     }
 
-    public void flush() {
+    public synchronized void flush() {
         try {
             List<SensorData> bufferedData = new ArrayList<>();
             dataBuffer.drainTo(bufferedData);
