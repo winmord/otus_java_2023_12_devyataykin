@@ -5,33 +5,16 @@ import org.slf4j.LoggerFactory;
 
 public class Homework {
     private static final Logger logger = LoggerFactory.getLogger(Homework.class);
-    private int first = 1;
-    private int firstAdd = 1;
-    private int second = 1;
-    private int secondAdd = 1;
     private String last = "second";
 
-    private synchronized void action(String turn) {
+    private synchronized void action(String turn, Counter counter) {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 while (last.equals(turn)) {
                     this.wait();
                 }
 
-                if ("first".equals(turn)) {
-                    logger.info("{}", first);
-                    first += firstAdd;
-                    if (first > 9) {
-                        firstAdd *= -1;
-                    }
-                } else {
-                    logger.info("{}", second);
-                    second += secondAdd;
-                    if (second > 9) {
-                        secondAdd *= -1;
-                    }
-                }
-
+                logger.info("{}", counter.getValue());
                 last = turn;
                 sleep();
                 notifyAll();
@@ -50,10 +33,24 @@ public class Homework {
         }
     }
 
+    private static class Counter {
+        private int value;
+        private int valueAdd = 1;
+
+        public int getValue() {
+            value += valueAdd;
+            if (value > 9) {
+                valueAdd *= -1;
+            }
+
+            return value;
+        }
+    }
+
     public static void main(String[] args) {
         Homework homework = new Homework();
-        new Thread(() -> homework.action("first")).start();
+        new Thread(() -> homework.action("first", new Counter())).start();
         sleep();
-        new Thread(() -> homework.action("second")).start();
+        new Thread(() -> homework.action("second", new Counter())).start();
     }
 }
