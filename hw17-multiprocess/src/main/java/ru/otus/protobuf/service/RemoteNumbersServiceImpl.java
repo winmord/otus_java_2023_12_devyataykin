@@ -2,6 +2,8 @@ package ru.otus.protobuf.service;
 
 import io.grpc.stub.StreamObserver;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.otus.protobuf.ClientMessage;
 import ru.otus.protobuf.IntervalServiceGrpc;
 import ru.otus.protobuf.ServerMessage;
@@ -10,6 +12,7 @@ import ru.otus.protobuf.model.Number;
 
 @SuppressWarnings({"squid:S106", "squid:S2142"})
 public class RemoteNumbersServiceImpl extends IntervalServiceGrpc.IntervalServiceImplBase {
+    private static final Logger logger = LoggerFactory.getLogger(RemoteNumbersServiceImpl.class);
     private final NumbersService numbersService;
 
     public RemoteNumbersServiceImpl(NumbersService numbersService) {
@@ -24,7 +27,7 @@ public class RemoteNumbersServiceImpl extends IntervalServiceGrpc.IntervalServic
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.error("{}", e.getMessage());
             }
             responseObserver.onNext(value2ServerMessage(v));
         });

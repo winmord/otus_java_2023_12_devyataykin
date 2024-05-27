@@ -29,7 +29,7 @@ public class NumbersClient {
             private static final Logger observerLogger = LoggerFactory.getLogger(StreamObserver.class);
 
             @Override
-            public void onNext(ServerMessage serverMessage) {
+            public synchronized void onNext(ServerMessage serverMessage) {
                 lastServerNumber = serverMessage.getValue();
                 observerLogger.info("new value:{}", lastServerNumber);
             }
@@ -51,7 +51,7 @@ public class NumbersClient {
         channel.shutdown();
     }
 
-    private static void clientCounterStart() {
+    private static synchronized void clientCounterStart() {
         int t = 0;
         int result = 0;
         for (int i = 0; i < 50; i++) {
