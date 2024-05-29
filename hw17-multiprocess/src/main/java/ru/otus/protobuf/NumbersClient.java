@@ -4,6 +4,7 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,7 +13,7 @@ public class NumbersClient {
     private static final Logger logger = LoggerFactory.getLogger(NumbersClient.class);
     private static final String SERVER_HOST = "localhost";
     private static final int SERVER_PORT = 8190;
-    private static int lastServerNumber = 0;
+    private static final AtomicLong lastServerNumber = new AtomicLong(0L);
 
     public static void main(String[] args) throws InterruptedException {
         logger.info("numbers Client is starting...");
@@ -29,9 +30,9 @@ public class NumbersClient {
             private static final Logger observerLogger = LoggerFactory.getLogger(StreamObserver.class);
 
             @Override
-            public synchronized void onNext(ServerMessage serverMessage) {
-                lastServerNumber = serverMessage.getValue();
-                observerLogger.info("new value:{}", lastServerNumber);
+            public void onNext(ServerMessage serverMessage) {
+                lastServerNumber.set(serverMessage.getValue());
+                observerLogger.info("new value:{}", lastServerNumber.get());
             }
 
             @Override
@@ -51,9 +52,9 @@ public class NumbersClient {
         channel.shutdown();
     }
 
-    private static synchronized void clientCounterStart() {
-        int t = 0;
-        int result = 0;
+    private static void clientCounterStart() {
+        long t = 0;
+        long result = 0;
         for (int i = 0; i < 50; i++) {
             try {
                 Thread.sleep(1000);
@@ -62,9 +63,10 @@ public class NumbersClient {
             }
 
             result += 1;
-            if (t != lastServerNumber) {
-                result += lastServerNumber;
-                t = lastServerNumber;
+            long currentLastServerNumber = lastServerNumber.get();
+            if (t != currentLastServerNumber) {
+                result += currentLastServerNumber;
+                t = currentLastServerNumber;
             }
 
             logger.info("currentValue:{}", result);
