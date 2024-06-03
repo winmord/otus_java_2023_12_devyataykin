@@ -2,9 +2,11 @@ package ru.otus.protobuf;
 
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
+
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +55,6 @@ public class NumbersClient {
     }
 
     private static void clientCounterStart() {
-        long t = 0;
         long result = 0;
         for (int i = 0; i < 50; i++) {
             try {
@@ -62,13 +63,7 @@ public class NumbersClient {
                 logger.error(Arrays.toString(e.getStackTrace()));
             }
 
-            result += 1;
-            long currentLastServerNumber = lastServerNumber.get();
-            if (t != currentLastServerNumber) {
-                result += currentLastServerNumber;
-                t = currentLastServerNumber;
-            }
-
+            result = result + 1 + lastServerNumber.getAndSet(0);
             logger.info("currentValue:{}", result);
         }
     }
