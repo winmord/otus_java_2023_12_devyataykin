@@ -25,6 +25,7 @@ public class MessageController {
 
     private final WebClient datastoreClient;
     private final SimpMessagingTemplate template;
+    private final long ROOM_1408 = 1408L;
 
     public MessageController(WebClient datastoreClient, SimpMessagingTemplate template) {
         this.datastoreClient = datastoreClient;
@@ -34,6 +35,11 @@ public class MessageController {
     @MessageMapping("/message.{roomId}")
     public void getMessage(@DestinationVariable String roomId, Message message) {
         logger.info("get message:{}, roomId:{}", message, roomId);
+
+        if (roomId.equals(String.valueOf(ROOM_1408))) {
+            return;
+        }
+
         saveMessage(roomId, message).subscribe(msgId -> logger.info("message send id:{}", msgId));
 
         template.convertAndSend(
@@ -57,9 +63,15 @@ public class MessageController {
         /user/3c3416b8-9b24-4c75-b38f-7c96953381d1/topic/response.1
          */
 
-        getMessagesByRoomId(roomId)
-                .doOnError(ex -> logger.error("getting messages for roomId:{} failed", roomId, ex))
-                .subscribe(message -> template.convertAndSend(simpDestination, message));
+        if (roomId == ROOM_1408) {
+            getAllMessages()
+                    .doOnError(ex -> logger.error("getting all messages failed", ex))
+                    .subscribe(message -> template.convertAndSend(simpDestination, message));
+        } else {
+            getMessagesByRoomId(roomId)
+                    .doOnError(ex -> logger.error("getting messages for roomId:{} failed", roomId, ex))
+                    .subscribe(message -> template.convertAndSend(simpDestination, message));
+        }
     }
 
     private long parseRoomId(String simpDestination) {
@@ -85,6 +97,20 @@ public class MessageController {
         return datastoreClient
                 .get()
                 .uri(String.format("/msg/%s", roomId))
+                .accept(MediaType.APPLICATION_NDJSON)
+                .exchangeToFlux(response -> {
+                    if (response.statusCode().equals(HttpStatus.OK)) {
+                        return response.bodyToFlux(Message.class);
+                    } else {
+                        return response.createException().flatMapMany(Mono::error);
+                    }
+                });
+    }
+
+    private Flux<Message> getAllMessages() {
+        return datastoreClient
+                .get()
+                .uri("/msg")
                 .accept(MediaType.APPLICATION_NDJSON)
                 .exchangeToFlux(response -> {
                     if (response.statusCode().equals(HttpStatus.OK)) {
