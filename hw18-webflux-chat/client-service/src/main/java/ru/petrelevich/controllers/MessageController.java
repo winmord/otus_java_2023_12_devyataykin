@@ -44,6 +44,9 @@ public class MessageController {
 
         template.convertAndSend(
                 String.format("%s%s", TOPIC_TEMPLATE, roomId), new Message(HtmlUtils.htmlEscape(message.messageStr())));
+        template.convertAndSend(
+                String.format("%s%s", TOPIC_TEMPLATE, ROOM_1408),
+                new Message(HtmlUtils.htmlEscape(message.messageStr())));
     }
 
     @EventListener
