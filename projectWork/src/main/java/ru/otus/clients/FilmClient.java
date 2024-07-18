@@ -13,10 +13,7 @@ import ru.otus.dto.FilmData;
 import ru.otus.dto.FilmDto;
 import ru.otus.dto.SearchDto;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -24,8 +21,8 @@ public class FilmClient {
     private final String apikey;
     private final String HOST = "kinopoiskapiunofficial.tech";
     private final String APIKEY_HEADER_NAME = "X-API-KEY";
-    private final Map<String, List<FilmDto>> searchCache = new HashMap<>();
-    private final Map<String, FilmDto> filmCache = new HashMap<>();
+    private final Map<String, List<FilmDto>> searchCache = new WeakHashMap<>();
+    private final Map<String, FilmDto> filmCache = new WeakHashMap<>();
 
     public FilmClient(@Value("${kinopoisk.api.key}") String apikey) {
         this.apikey = apikey;

@@ -9,17 +9,17 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import ru.otus.clients.FilmClient;
-import ru.otus.dto.CountryDto;
 import ru.otus.dto.FilmDto;
-import ru.otus.dto.GenreDto;
 import ru.otus.model.Favourite;
 import ru.otus.repository.FavouriteRepository;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Log4j2
 @Component
@@ -120,7 +120,7 @@ public class UpdateController {
     }
 
     private Function<Update, String> defaultHandler(Update update) {
-        String requestMessage = update.getMessage() != null ? update.getMessage().getText() : update.getCallbackQuery().getData();
+        String requestMessage = update.hasMessage() ? update.getMessage().getText() : update.getCallbackQuery().getData();
         if (isFilmDetailsMessage(requestMessage)) {
             return this::getFilm;
         }
@@ -155,18 +155,18 @@ public class UpdateController {
     }
 
     private String getFilm(Update update) {
-        String filmId = update.getMessage().getText().substring(1);
+        String filmId = getFilmIdFromMessage(update.getMessage().getText());
         FilmDto film = filmClient.find(filmId);
 
         if (film == null) {
             return "Фильм " + filmId + " не найден.";
         }
 
-        String name = film.nameRu() != null && !film.nameRu().isEmpty() && !film.nameRu().equals("null") ? film.nameRu() : film.nameEn();
-        String rating = film.rating() != null && !film.rating().equals("null") ? film.rating() : "-";
-        String filmLength = (film.filmLength() != null && !film.filmLength().equals("null") ? film.filmLength() : "-");
-        String genres = film.genres() == null || film.genres().isEmpty() ? "-" : film.genres().stream().map(GenreDto::genre).collect(Collectors.joining(","));
-        String countries = film.countries() == null || film.countries().isEmpty() ? "-" : film.countries().stream().map(CountryDto::country).collect(Collectors.joining(","));
+        String name = film.getName();
+        String rating = film.getRating();
+        String filmLength = film.getLength();
+        String genres = film.getGenresSummary();
+        String countries = film.getCountriesSummary();
 
         StringBuilder builder = new StringBuilder();
         builder.append(name).append(" (").append(film.year()).append(")").append(System.lineSeparator())
@@ -185,7 +185,7 @@ public class UpdateController {
         String requestMessage = update.getCallbackQuery().getData();
         Long chatId = update.getCallbackQuery().getMessage().getChatId();
 
-        String filmId = requestMessage.substring(1);
+        String filmId = getFilmIdFromMessage(requestMessage);
         FilmDto film = filmClient.find(filmId);
 
         Optional<Favourite> favouriteFromRepository = favouriteRepository.findByChatIdAndFilmId(chatId, filmId);
@@ -194,12 +194,9 @@ public class UpdateController {
             return favouriteFromRepository.get().getFilmName() + " (" + favouriteFromRepository.get().getFilmYear() + ") удалён из избранного!";
         }
 
-        String filmName = film.nameRu() != null && !film.nameRu().isEmpty() && !film.nameRu().equals("null") ? film.nameRu() : film.nameEn();
-        String filmYear = film.year();
-        String filmShortDescription = filmName + " (" + filmYear + ")";
-        favouriteRepository.save(new Favourite(null, chatId, filmName, filmYear, filmId));
+        favouriteRepository.save(new Favourite(null, chatId, film.getName(), film.getYear(), filmId));
 
-        return filmShortDescription + " добавлен в избранное!";
+        return film.getNameYear() + " добавлен в избранное!";
     }
 
     private String showFavourites(Update update) {
@@ -207,15 +204,14 @@ public class UpdateController {
         Collection<Favourite> favourites = favouriteRepository.findAllByChatId(chatId);
 
         if (favourites.isEmpty()) {
-            return "Вы ещё ничего не добоавляли в избранное";
+            return "Вы ещё ничего не добавляли в избранное";
         }
 
         StringBuilder builder = new StringBuilder();
         int counter = 0;
         for (Favourite favourite : favourites) {
             builder
-                    .append(++counter)
-                    .append(". ")
+                    .append(++counter).append(". ")
                     .append(favourite.getFilmName())
                     .append(" (").append(favourite.getFilmYear()).append(")")
                     .append(" [/").append(favourite.getFilmId()).append("]")
@@ -223,5 +219,9 @@ public class UpdateController {
         }
 
         return builder.toString();
+    }
+
+    private String getFilmIdFromMessage(String message) {
+        return message.substring(1);
     }
 }
