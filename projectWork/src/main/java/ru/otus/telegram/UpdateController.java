@@ -12,6 +12,8 @@ import ru.otus.clients.FilmClient;
 import ru.otus.dto.CountryDto;
 import ru.otus.dto.FilmDto;
 import ru.otus.dto.GenreDto;
+import ru.otus.model.Favourite;
+import ru.otus.repository.FavouriteRepository;
 
 import java.util.*;
 import java.util.function.Function;
@@ -26,20 +28,22 @@ public class UpdateController {
     private final FilmClient filmClient;
     private final InlineKeyboardMaker inlineKeyboardMaker;
     private final ReplyKeyboardMaker replyKeyboardMaker;
-    private final Map<String, Function<String, String>> handlers = Map.of(
-            "/start", (String) -> "Отправьте название фильма, который желаете найти",
+    private final Map<String, Function<Update, String>> handlers = Map.of(
+            "/start", (update) -> "Отправьте название фильма, который желаете найти",
             "/add_favourite", this::addToFavourite,
             "/favourite", this::showFavourites,
             "Избранное 🔖", this::showFavourites,
-            "Помощь 🆘", (String) -> "Для навигации воспользуйтесь кнопками меню. Чтобы найти фильм, просто отправьте его название.",
+            "Помощь 🆘", (update) -> "Для навигации воспользуйтесь кнопками меню. Чтобы найти фильм, просто отправьте его название.",
             "/default", this::searchFilm
     );
-    private final Map<String, String> favourites = new HashMap<>();
 
-    public UpdateController(FilmClient filmClient, InlineKeyboardMaker inlineKeyboardMaker, ReplyKeyboardMaker replyKeyboardMaker) {
+    private final FavouriteRepository favouriteRepository;
+
+    public UpdateController(FilmClient filmClient, InlineKeyboardMaker inlineKeyboardMaker, ReplyKeyboardMaker replyKeyboardMaker, FavouriteRepository favouriteRepository) {
         this.filmClient = filmClient;
         this.inlineKeyboardMaker = inlineKeyboardMaker;
         this.replyKeyboardMaker = replyKeyboardMaker;
+        this.favouriteRepository = favouriteRepository;
     }
 
     public void registerBot(TelegramBot telegramBot) {
@@ -66,8 +70,8 @@ public class UpdateController {
         Long chatId = update.getMessage().getChatId();
         String requestMessage = update.getMessage().getText();
 
-        Function<String, String> handler = handlers.getOrDefault(requestMessage, defaultHandler(requestMessage));
-        String responseMessageText = handler.apply(requestMessage);
+        Function<Update, String> handler = handlers.getOrDefault(requestMessage, defaultHandler(update));
+        String responseMessageText = handler.apply(update);
 
         SendMessage sendMessage = prepareMessage(requestMessage, chatId, responseMessageText);
         sendMessage(sendMessage);
@@ -75,10 +79,9 @@ public class UpdateController {
 
     private void processCallbackQuery(Update update) {
         Long chatId = update.getCallbackQuery().getMessage().getChatId();
-        String requestMessage = update.getCallbackQuery().getData();
 
-        Function<String, String> handler = handlers.getOrDefault("/add_favourite", defaultHandler(requestMessage));
-        String responseMessageText = handler.apply(requestMessage);
+        Function<Update, String> handler = handlers.getOrDefault("/add_favourite", defaultHandler(update));
+        String responseMessageText = handler.apply(update);
 
         SendMessage sendMessage = prepareMessage("", chatId, responseMessageText);
         sendMessage(sendMessage);
@@ -96,7 +99,9 @@ public class UpdateController {
         SendMessage sendMessage = new SendMessage(String.valueOf(chatId), messageText);
 
         if (isFilmDetailsMessage(requestMessage)) {
-            String buttonText = favourites.containsKey(requestMessage) ? "Удалить из избранного" : "Добавить в избранное";
+            String buttonText = favouriteRepository.findByChatIdAndFilmId(chatId, requestMessage.substring(1)).isPresent()
+                    ? "Удалить из избранного"
+                    : "Добавить в избранное";
             InlineKeyboardMarkup inlineKeyboardMarkup = inlineKeyboardMaker.getInlineMessageButtons(buttonText, requestMessage);
             sendMessage.setReplyMarkup(inlineKeyboardMarkup);
         } else if ("/start".equals(requestMessage)) {
@@ -114,24 +119,26 @@ public class UpdateController {
         }
     }
 
-    private Function<String, String> defaultHandler(String messageText) {
-        if (isFilmDetailsMessage(messageText)) {
+    private Function<Update, String> defaultHandler(Update update) {
+        String requestMessage = update.getMessage() != null ? update.getMessage().getText() : update.getCallbackQuery().getData();
+        if (isFilmDetailsMessage(requestMessage)) {
             return this::getFilm;
         }
 
         return this::searchFilm;
     }
 
-    private String searchFilm(String keyword) {
-        List<FilmDto> films = filmClient.search(keyword);
+    private String searchFilm(Update update) {
+        String requestMessage = update.getMessage().getText();
+        List<FilmDto> films = filmClient.search(requestMessage);
         StringBuilder builder = new StringBuilder();
 
         if (films.isEmpty()) {
-            builder.append("По запросу \"").append(keyword).append("\" ничего не найдено.").append(System.lineSeparator());
+            builder.append("По запросу \"").append(requestMessage).append("\" ничего не найдено.").append(System.lineSeparator());
             return builder.toString();
         }
 
-        builder.append("По запросу \"").append(keyword).append("\" найдено:").append(System.lineSeparator());
+        builder.append("По запросу \"").append(requestMessage).append("\" найдено:").append(System.lineSeparator());
 
         int counter = 0;
         for (FilmDto film : films) {
@@ -147,8 +154,8 @@ public class UpdateController {
         return builder.toString();
     }
 
-    private String getFilm(String keyword) {
-        String filmId = keyword.substring(1);
+    private String getFilm(Update update) {
+        String filmId = update.getMessage().getText().substring(1);
         FilmDto film = filmClient.find(filmId);
 
         if (film == null) {
@@ -174,27 +181,45 @@ public class UpdateController {
         return builder.toString();
     }
 
-    private String addToFavourite(String requestMessage) {
+    private String addToFavourite(Update update) {
+        String requestMessage = update.getCallbackQuery().getData();
+        Long chatId = update.getCallbackQuery().getMessage().getChatId();
+
         String filmId = requestMessage.substring(1);
         FilmDto film = filmClient.find(filmId);
 
-        String name = film.nameRu() != null && !film.nameRu().isEmpty() && !film.nameRu().equals("null") ? film.nameRu() : film.nameEn();
-        String filmShortDescription = name + " (" + film.year() + ")";
-
-        if (favourites.containsKey(requestMessage)) {
-            favourites.remove(requestMessage);
-            return filmShortDescription + " удалён из избранного!";
+        Optional<Favourite> favouriteFromRepository = favouriteRepository.findByChatIdAndFilmId(chatId, filmId);
+        if (favouriteFromRepository.isPresent()) {
+            favouriteRepository.delete(favouriteFromRepository.get());
+            return favouriteFromRepository.get().getFilmName() + " (" + favouriteFromRepository.get().getFilmYear() + ") удалён из избранного!";
         }
 
-        favourites.put(requestMessage, filmShortDescription + " [" + requestMessage + "]");
+        String filmName = film.nameRu() != null && !film.nameRu().isEmpty() && !film.nameRu().equals("null") ? film.nameRu() : film.nameEn();
+        String filmYear = film.year();
+        String filmShortDescription = filmName + " (" + filmYear + ")";
+        favouriteRepository.save(new Favourite(null, chatId, filmName, filmYear, filmId));
+
         return filmShortDescription + " добавлен в избранное!";
     }
 
-    private String showFavourites(String requestMessage) {
+    private String showFavourites(Update update) {
+        Long chatId = update.getMessage().getChatId();
+        Collection<Favourite> favourites = favouriteRepository.findAllByChatId(chatId);
+
+        if (favourites.isEmpty()) {
+            return "Вы ещё ничего не добоавляли в избранное";
+        }
+
         StringBuilder builder = new StringBuilder();
         int counter = 0;
-        for (String film : favourites.values()) {
-            builder.append(++counter).append(". ").append(film).append(System.lineSeparator());
+        for (Favourite favourite : favourites) {
+            builder
+                    .append(++counter)
+                    .append(". ")
+                    .append(favourite.getFilmName())
+                    .append(" (").append(favourite.getFilmYear()).append(")")
+                    .append(" [/").append(favourite.getFilmId()).append("]")
+                    .append(System.lineSeparator());
         }
 
         return builder.toString();
