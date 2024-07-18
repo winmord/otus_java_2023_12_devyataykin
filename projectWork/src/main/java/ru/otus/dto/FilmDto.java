@@ -14,8 +14,7 @@ public record FilmDto(
         String rating,
         String posterUrl,
         List<GenreDto> genres,
-        List<CountryDto> countries
-) {
+        List<CountryDto> countries) {
     public String getName() {
         return nameRu != null && !nameRu.isEmpty() && !nameRu.equals("null") ? nameRu : nameEn;
     }
@@ -36,11 +35,15 @@ public record FilmDto(
     }
 
     public String getGenresSummary() {
-        return genres == null || genres.isEmpty() ? "-" : genres.stream().map(GenreDto::genre).collect(Collectors.joining(","));
+        return genres == null || genres.isEmpty()
+                ? "-"
+                : genres.stream().map(GenreDto::genre).collect(Collectors.joining(","));
     }
 
     public String getCountriesSummary() {
-        return countries == null || countries.isEmpty() ? "-" : countries.stream().map(CountryDto::country).collect(Collectors.joining(","));
+        return countries == null || countries.isEmpty()
+                ? "-"
+                : countries.stream().map(CountryDto::country).collect(Collectors.joining(","));
     }
 
     public String getNameYear() {

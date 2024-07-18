@@ -35,7 +35,8 @@ public class Favourite {
     private String filmId;
 
     @PersistenceCreator
-    public Favourite(Long id, @Nonnull Long chatId, @Nonnull String filmName, @Nonnull String filmYear, @Nonnull String filmId) {
+    public Favourite(
+            Long id, @Nonnull Long chatId, @Nonnull String filmName, @Nonnull String filmYear, @Nonnull String filmId) {
         this.id = id;
         this.chatId = chatId;
         this.filmName = filmName;
@@ -45,12 +46,11 @@ public class Favourite {
 
     @Override
     public String toString() {
-        return "Favourite{" +
-                "id=" + id +
-                ", chatId=" + chatId +
-                ", filmName='" + filmName + '\'' +
-                ", filmYear=" + filmYear +
-                ", filmId='" + filmId + '\'' +
-                '}';
+        return "Favourite{" + "id="
+                + id + ", chatId="
+                + chatId + ", filmName='"
+                + filmName + '\'' + ", filmYear="
+                + filmYear + ", filmId='"
+                + filmId + '\'' + '}';
     }
 }

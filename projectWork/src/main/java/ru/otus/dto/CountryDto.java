@@ -1,4 +1,3 @@
 package ru.otus.dto;
 
-public record CountryDto(String country) {
-}
+public record CountryDto(String country) {}

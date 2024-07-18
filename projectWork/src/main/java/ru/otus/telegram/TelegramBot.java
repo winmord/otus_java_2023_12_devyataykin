@@ -13,9 +13,10 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final String botUsername;
     private final UpdateController updateController;
 
-    public TelegramBot(@Value("${telegram.bot.token}") String botToken,
-                       @Value("${telegram.bot.username}") String botUsername,
-                       UpdateController updateController) {
+    public TelegramBot(
+            @Value("${telegram.bot.token}") String botToken,
+            @Value("${telegram.bot.username}") String botUsername,
+            UpdateController updateController) {
         super(botToken);
         this.botUsername = botUsername;
         this.updateController = updateController;

@@ -1,4 +1,3 @@
 package ru.otus.dto;
 
-public record GenreDto(String genre) {
-}
+public record GenreDto(String genre) {}

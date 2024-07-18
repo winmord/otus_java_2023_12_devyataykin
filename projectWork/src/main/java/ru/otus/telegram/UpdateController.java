@@ -1,5 +1,12 @@
 package ru.otus.telegram;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -13,14 +20,6 @@ import ru.otus.dto.FilmDto;
 import ru.otus.model.Favourite;
 import ru.otus.repository.FavouriteRepository;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 @Log4j2
 @Component
 public class UpdateController {
@@ -29,17 +28,22 @@ public class UpdateController {
     private final InlineKeyboardMaker inlineKeyboardMaker;
     private final ReplyKeyboardMaker replyKeyboardMaker;
     private final Map<String, Function<Update, String>> handlers = Map.of(
-            "/start", (update) -> "Отправьте название фильма, который желаете найти",
+            "/start", update -> "Отправьте название фильма, который желаете найти",
             "/add_favourite", this::addToFavourite,
             "/favourite", this::showFavourites,
             "Избранное 🔖", this::showFavourites,
-            "Помощь 🆘", (update) -> "Для навигации воспользуйтесь кнопками меню. Чтобы найти фильм, просто отправьте его название.",
-            "/default", this::searchFilm
-    );
+            "Помощь 🆘",
+                    update ->
+                            "Для навигации воспользуйтесь кнопками меню. Чтобы найти фильм, просто отправьте его название.",
+            "/default", this::searchFilm);
 
     private final FavouriteRepository favouriteRepository;
 
-    public UpdateController(FilmClient filmClient, InlineKeyboardMaker inlineKeyboardMaker, ReplyKeyboardMaker replyKeyboardMaker, FavouriteRepository favouriteRepository) {
+    public UpdateController(
+            FilmClient filmClient,
+            InlineKeyboardMaker inlineKeyboardMaker,
+            ReplyKeyboardMaker replyKeyboardMaker,
+            FavouriteRepository favouriteRepository) {
         this.filmClient = filmClient;
         this.inlineKeyboardMaker = inlineKeyboardMaker;
         this.replyKeyboardMaker = replyKeyboardMaker;
@@ -99,10 +103,13 @@ public class UpdateController {
         SendMessage sendMessage = new SendMessage(String.valueOf(chatId), messageText);
 
         if (isFilmDetailsMessage(requestMessage)) {
-            String buttonText = favouriteRepository.findByChatIdAndFilmId(chatId, requestMessage.substring(1)).isPresent()
+            String buttonText = favouriteRepository
+                            .findByChatIdAndFilmId(chatId, requestMessage.substring(1))
+                            .isPresent()
                     ? "Удалить из избранного"
                     : "Добавить в избранное";
-            InlineKeyboardMarkup inlineKeyboardMarkup = inlineKeyboardMaker.getInlineMessageButtons(buttonText, requestMessage);
+            InlineKeyboardMarkup inlineKeyboardMarkup =
+                    inlineKeyboardMaker.getInlineMessageButtons(buttonText, requestMessage);
             sendMessage.setReplyMarkup(inlineKeyboardMarkup);
         } else if ("/start".equals(requestMessage)) {
             sendMessage.setReplyMarkup(replyKeyboardMaker.getMainMenuKeyboard());
@@ -120,7 +127,9 @@ public class UpdateController {
     }
 
     private Function<Update, String> defaultHandler(Update update) {
-        String requestMessage = update.hasMessage() ? update.getMessage().getText() : update.getCallbackQuery().getData();
+        String requestMessage = update.hasMessage()
+                ? update.getMessage().getText()
+                : update.getCallbackQuery().getData();
         if (isFilmDetailsMessage(requestMessage)) {
             return this::getFilm;
         }
@@ -134,20 +143,31 @@ public class UpdateController {
         StringBuilder builder = new StringBuilder();
 
         if (films.isEmpty()) {
-            builder.append("По запросу \"").append(requestMessage).append("\" ничего не найдено.").append(System.lineSeparator());
+            builder.append("По запросу \"")
+                    .append(requestMessage)
+                    .append("\" ничего не найдено.")
+                    .append(System.lineSeparator());
             return builder.toString();
         }
 
-        builder.append("По запросу \"").append(requestMessage).append("\" найдено:").append(System.lineSeparator());
+        builder.append("По запросу \"")
+                .append(requestMessage)
+                .append("\" найдено:")
+                .append(System.lineSeparator());
 
         int counter = 0;
         for (FilmDto film : films) {
-            builder.append(++counter).append(". ")
+            builder.append(++counter)
+                    .append(". ")
                     .append(film.type().equals("FILM") ? "📽" : "📺")
                     .append(film.nameRu() == null ? film.nameEn() : film.nameRu())
-                    .append(" (").append(film.year()).append(") ")
+                    .append(" (")
+                    .append(film.year())
+                    .append(") ")
                     .append(film.rating() != null && !film.rating().equals("null") ? "⭐️" + film.rating() : "")
-                    .append(" [/").append(film.filmId()).append("]")
+                    .append(" [/")
+                    .append(film.filmId())
+                    .append("]")
                     .append(System.lineSeparator());
         }
 
@@ -169,13 +189,28 @@ public class UpdateController {
         String countries = film.getCountriesSummary();
 
         StringBuilder builder = new StringBuilder();
-        builder.append(name).append(" (").append(film.year()).append(")").append(System.lineSeparator())
-                .append("⭐️ ").append(rating).append(System.lineSeparator())
-                .append("⏳ ").append(filmLength).append(" ч.").append(System.lineSeparator())
-                .append("🎭 ").append(genres).append(System.lineSeparator())
-                .append("📍 ").append(countries).append(System.lineSeparator())
-                .append("📃 ").append(film.description() == null || film.description().isEmpty() ? "-" : film.description())
-                .append(System.lineSeparator()).append(System.lineSeparator())
+        builder.append(name)
+                .append(" (")
+                .append(film.year())
+                .append(")")
+                .append(System.lineSeparator())
+                .append("⭐️ ")
+                .append(rating)
+                .append(System.lineSeparator())
+                .append("⏳ ")
+                .append(filmLength)
+                .append(" ч.")
+                .append(System.lineSeparator())
+                .append("🎭 ")
+                .append(genres)
+                .append(System.lineSeparator())
+                .append("📍 ")
+                .append(countries)
+                .append(System.lineSeparator())
+                .append("📃 ")
+                .append(film.description() == null || film.description().isEmpty() ? "-" : film.description())
+                .append(System.lineSeparator())
+                .append(System.lineSeparator())
                 .append(film.posterUrl());
 
         return builder.toString();
@@ -191,7 +226,8 @@ public class UpdateController {
         Optional<Favourite> favouriteFromRepository = favouriteRepository.findByChatIdAndFilmId(chatId, filmId);
         if (favouriteFromRepository.isPresent()) {
             favouriteRepository.delete(favouriteFromRepository.get());
-            return favouriteFromRepository.get().getFilmName() + " (" + favouriteFromRepository.get().getFilmYear() + ") удалён из избранного!";
+            return favouriteFromRepository.get().getFilmName() + " ("
+                    + favouriteFromRepository.get().getFilmYear() + ") удалён из избранного!";
         }
 
         favouriteRepository.save(new Favourite(null, chatId, film.getName(), film.getYear(), filmId));
@@ -210,11 +246,15 @@ public class UpdateController {
         StringBuilder builder = new StringBuilder();
         int counter = 0;
         for (Favourite favourite : favourites) {
-            builder
-                    .append(++counter).append(". ")
+            builder.append(++counter)
+                    .append(". ")
                     .append(favourite.getFilmName())
-                    .append(" (").append(favourite.getFilmYear()).append(")")
-                    .append(" [/").append(favourite.getFilmId()).append("]")
+                    .append(" (")
+                    .append(favourite.getFilmYear())
+                    .append(")")
+                    .append(" [/")
+                    .append(favourite.getFilmId())
+                    .append("]")
                     .append(System.lineSeparator());
         }
 

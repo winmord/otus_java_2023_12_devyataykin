@@ -1,5 +1,6 @@
 package ru.otus.clients;
 
+import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -13,14 +14,12 @@ import ru.otus.dto.FilmData;
 import ru.otus.dto.FilmDto;
 import ru.otus.dto.SearchDto;
 
-import java.util.*;
-
 @Slf4j
 @Component
 public class FilmClient {
     private final String apikey;
-    private final String HOST = "kinopoiskapiunofficial.tech";
-    private final String APIKEY_HEADER_NAME = "X-API-KEY";
+    private static final String HOST = "kinopoiskapiunofficial.tech";
+    private static final String APIKEY_HEADER_NAME = "X-API-KEY";
     private final Map<String, List<FilmDto>> searchCache = new WeakHashMap<>();
     private final Map<String, FilmDto> filmCache = new WeakHashMap<>();
 
@@ -51,7 +50,8 @@ public class FilmClient {
         Map<String, String> params = new HashMap<>();
         params.put("keyword", keyword);
 
-        ResponseEntity<SearchDto> response = restTemplate.exchange(uri, HttpMethod.GET, requestEntity, SearchDto.class, params);
+        ResponseEntity<SearchDto> response =
+                restTemplate.exchange(uri, HttpMethod.GET, requestEntity, SearchDto.class, params);
 
         List<FilmDto> films = Objects.requireNonNull(response.getBody()).films();
         addFilmsToCache(keyword, films);
