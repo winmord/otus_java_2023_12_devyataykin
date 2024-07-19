@@ -11,7 +11,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-test")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
-    implementation("org.telegram:telegrambots-spring-boot-starter:6.9.7.1")
+    implementation("org.telegram:telegrambots-spring-boot-starter")
 
     implementation("com.google.code.gson:gson")
     implementation("ch.qos.logback:logback-classic")
@@ -30,10 +30,5 @@ jib {
 
     to {
         image = "docker.io/winmord/film-tracker:latest"
-//        tags = setOf(project.version.toString())
-//        auth {
-//            username = System.getenv("GITLAB_USERNAME")
-//            password = System.getenv("GITLAB_PASSWORD")
-//        }
     }
 }
