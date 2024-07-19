@@ -4,6 +4,8 @@ plugins {
     id ("fr.brouillard.oss.gradle.jgitver")
 }
 
+val telegrambots: String by project
+
 dependencies {
     implementation("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
@@ -11,7 +13,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-test")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
-    implementation("org.telegram:telegrambots-spring-boot-starter")
+    implementation("org.telegram:telegrambots-spring-boot-starter:$telegrambots")
 
     implementation("com.google.code.gson:gson")
     implementation("ch.qos.logback:logback-classic")

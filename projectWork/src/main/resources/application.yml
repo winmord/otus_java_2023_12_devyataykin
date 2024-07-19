@@ -6,3 +6,12 @@ spring:
   flyway:
     enabled: true
 
+telegram:
+  bot:
+    username: film_tracker_bot
+    token: ${TELEGRAM_BOT_TOKEN}
+
+kinopoisk:
+  api:
+    url: https://kinopoiskapiunofficial.tech/api/v2.1/films
+    key: ${KINOPOISK_API_KEY}

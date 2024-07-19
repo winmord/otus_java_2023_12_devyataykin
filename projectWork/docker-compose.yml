@@ -9,6 +9,8 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://film-tracker-db:5432/${POSTGRES_DB}
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - KINOPOISK_API_KEY=${KINOPOISK_API_KEY}
 
   film-tracker-db:
     image: postgres:12
