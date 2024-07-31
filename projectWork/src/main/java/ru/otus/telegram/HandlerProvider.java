@@ -2,6 +2,9 @@ package ru.otus.telegram;
 
 import java.util.Map;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.otus.service.FilmService;
@@ -34,11 +37,18 @@ public class HandlerProvider {
         return handlers.getOrDefault(requestMessage, defaultHandler(update));
     }
 
+    public static boolean isFilmDetailsMessage(String messageText) {
+        String regex = "^/\\d+";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(messageText);
+        return matcher.find();
+    }
+
     private Function<Update, String> defaultHandler(Update update) {
         String requestMessage = update.hasMessage()
                 ? update.getMessage().getText()
                 : update.getCallbackQuery().getData();
-        if (filmService.isFilmDetailsMessage(requestMessage)) {
+        if (isFilmDetailsMessage(requestMessage)) {
             return this::getFilmHandler;
         }
 

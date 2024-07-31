@@ -1,6 +1,7 @@
 package ru.otus.telegram;
 
 import java.util.function.Function;
+
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -71,7 +72,9 @@ public class UpdateController {
 
         if ("/start".equals(requestMessage)) {
             sendMessage.setReplyMarkup(replyKeyboardMaker.getMainMenuKeyboard());
-        } else {
+        }
+
+        if (HandlerProvider.isFilmDetailsMessage(requestMessage)) {
             Function<Update, String> handler = handlerProvider.getHandler("/is_favourite", update);
             boolean isFilmFavourite = handler.apply(update) != null;
             String buttonText = isFilmFavourite ? "Удалить из избранного" : "Добавить в избранное";

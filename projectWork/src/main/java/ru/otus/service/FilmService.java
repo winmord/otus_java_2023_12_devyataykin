@@ -1,15 +1,14 @@
 package ru.otus.service;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.springframework.stereotype.Service;
 import ru.otus.clients.FilmClient;
 import ru.otus.dto.FilmDto;
 import ru.otus.model.Favourite;
 import ru.otus.repository.FavouriteRepository;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FilmService {
@@ -21,31 +20,24 @@ public class FilmService {
         this.favouriteRepository = favouriteRepository;
     }
 
-    public boolean isFilmDetailsMessage(String messageText) {
-        String regex = "^/\\d+";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(messageText);
-        return matcher.find();
-    }
-
     public boolean isFilmFavourite(Long chatId, String filmId) {
         return favouriteRepository.findByChatIdAndFilmId(chatId, filmId).isPresent();
     }
 
-    public String searchFilm(String requestMessage) {
-        List<FilmDto> films = filmClient.search(requestMessage);
+    public String searchFilm(String keyword) {
+        List<FilmDto> films = filmClient.search(keyword);
         StringBuilder builder = new StringBuilder();
 
         if (films.isEmpty()) {
             builder.append("По запросу \"")
-                    .append(requestMessage)
+                    .append(keyword)
                     .append("\" ничего не найдено.")
                     .append(System.lineSeparator());
             return builder.toString();
         }
 
         builder.append("По запросу \"")
-                .append(requestMessage)
+                .append(keyword)
                 .append("\" найдено:")
                 .append(System.lineSeparator());
 
