@@ -27,7 +27,7 @@ public class FilmClient {
         this.apikey = apikey;
     }
 
-    public List<FilmDto> search(String keyword) {
+    public List<FilmDto> findByKeyword(String keyword) {
         if (searchCache.containsKey(keyword)) {
             return searchCache.get(keyword);
         }
@@ -59,7 +59,7 @@ public class FilmClient {
         return films;
     }
 
-    public FilmDto find(String filmId) {
+    public FilmDto findById(String filmId) {
         if (filmCache.containsKey(filmId)) {
             return filmCache.get(filmId);
         }

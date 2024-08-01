@@ -36,7 +36,7 @@ class FilmServiceTest {
 
     @Test
     void shouldFindFilmByNameInEnglish() {
-        given(filmClient.search(anyString())).willReturn(filmDtos);
+        given(filmClient.findByKeyword(anyString())).willReturn(filmDtos);
 
         String searchResult = filmService.searchFilm(FILM_ENGLISH_NAME);
         assertNotNull(searchResult);
@@ -47,7 +47,7 @@ class FilmServiceTest {
 
     @Test
     void shouldFindFilmByNameInRussian() {
-        given(filmClient.search(anyString())).willReturn(filmDtos);
+        given(filmClient.findByKeyword(anyString())).willReturn(filmDtos);
 
         String searchResult = filmService.searchFilm(FILM_RUSSIAN_NAME);
         assertNotNull(searchResult);
@@ -58,7 +58,7 @@ class FilmServiceTest {
 
     @Test
     void shouldDisplayFilmNotFound() {
-        given(filmClient.search(anyString())).willReturn(new ArrayList<>());
+        given(filmClient.findByKeyword(anyString())).willReturn(new ArrayList<>());
 
         String keyword = ".";
         String searchResult = filmService.searchFilm(keyword);

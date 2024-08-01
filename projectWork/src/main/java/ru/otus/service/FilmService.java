@@ -25,7 +25,7 @@ public class FilmService {
     }
 
     public String searchFilm(String keyword) {
-        List<FilmDto> films = filmClient.search(keyword);
+        List<FilmDto> films = filmClient.findByKeyword(keyword);
         StringBuilder builder = new StringBuilder();
 
         if (films.isEmpty()) {
@@ -61,7 +61,7 @@ public class FilmService {
     }
 
     public String getFilm(String filmId) {
-        FilmDto film = filmClient.find(filmId);
+        FilmDto film = filmClient.findById(filmId);
 
         if (film == null) {
             return "Фильм " + filmId + " не найден.";
@@ -102,8 +102,6 @@ public class FilmService {
     }
 
     public String changeFavouriteState(String filmId, Long chatId) {
-        FilmDto film = filmClient.find(filmId);
-
         Optional<Favourite> favouriteFromRepository = favouriteRepository.findByChatIdAndFilmId(chatId, filmId);
         if (favouriteFromRepository.isPresent()) {
             favouriteRepository.delete(favouriteFromRepository.get());
@@ -111,6 +109,7 @@ public class FilmService {
                     + favouriteFromRepository.get().getFilmYear() + ") удалён из избранного!";
         }
 
+        FilmDto film = filmClient.findById(filmId);
         favouriteRepository.save(new Favourite(null, chatId, film.getName(), film.getYear(), filmId));
 
         return film.getNameYear() + " добавлен в избранное!";
