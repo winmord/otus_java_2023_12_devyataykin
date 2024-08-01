@@ -43,3 +43,5 @@ include("hw18-webflux-chat")
 include("hw18-webflux-chat:client-service")
 include("hw18-webflux-chat:datastore-service")
 include("projectWork")
+include("projectWork:test")
+findProject(":projectWork:test")?.name = "test"
