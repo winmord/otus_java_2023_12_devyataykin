@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5430/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+  flyway:
+    enabled: true
+
+telegram:
+  bot:
+    username: film_tracker_bot
+    token: ${TELEGRAM_BOT_TOKEN}
+
+kinopoisk:
+  api:
+    key: ${KINOPOISK_API_KEY}
+    host: ${KINOPOISK_API_HOST}

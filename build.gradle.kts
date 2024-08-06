@@ -59,6 +59,8 @@ allprojects {
     val wiremock: String by project
     val r2dbcPostgresql: String by project
 
+    val telegrambots: String by project
+
     apply(plugin = "io.spring.dependency-management")
     dependencyManagement {
         dependencies {
