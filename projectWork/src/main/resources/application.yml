@@ -13,5 +13,5 @@ telegram:
 
 kinopoisk:
   api:
-    url: https://kinopoiskapiunofficial.tech/api/v2.1/films
     key: ${KINOPOISK_API_KEY}
+    host: ${KINOPOISK_API_HOST}

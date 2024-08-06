@@ -14,7 +14,7 @@ public class FilmClientTest {
 
     @BeforeEach
     public void setUp() {
-        filmClient = new FilmClient(System.getenv("KINOPOISK_API_KEY"));
+        filmClient = new FilmClient(System.getenv("KINOPOISK_API_KEY"), System.getenv("KINOPOISK_API_HOST"));
     }
 
     @Test

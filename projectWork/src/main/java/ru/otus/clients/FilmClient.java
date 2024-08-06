@@ -18,13 +18,14 @@ import ru.otus.dto.SearchDto;
 @Component
 public class FilmClient {
     private final String apikey;
-    private static final String HOST = "kinopoiskapiunofficial.tech";
+    private final String host;
     private static final String APIKEY_HEADER_NAME = "X-API-KEY";
     private final Map<String, List<FilmDto>> searchCache = new WeakHashMap<>();
     private final Map<String, FilmDto> filmCache = new WeakHashMap<>();
 
-    public FilmClient(@Value("${kinopoisk.api.key}") String apikey) {
+    public FilmClient(@Value("${kinopoisk.api.key}") String apikey, @Value("${kinopoisk.api.host}") String host) {
         this.apikey = apikey;
+        this.host = host;
     }
 
     public List<FilmDto> findByKeyword(String keyword) {
@@ -34,7 +35,7 @@ public class FilmClient {
 
         String uri = UriComponentsBuilder.newInstance()
                 .scheme("https")
-                .host(HOST)
+                .host(host)
                 .path("/api/v2.1/films")
                 .path("/search-by-keyword")
                 .queryParam("keyword", keyword)
@@ -66,7 +67,7 @@ public class FilmClient {
 
         String uri = UriComponentsBuilder.newInstance()
                 .scheme("https")
-                .host(HOST)
+                .host(host)
                 .path("/api/v2.1/films")
                 .path("/" + filmId)
                 .build()
